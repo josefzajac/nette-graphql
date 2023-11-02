@@ -1,0 +1,21 @@
+# Nette
+/config/local.neon
+
+.docker/data
+.docs
+.phpstorm.meta.php
+
+
+# Composer
+/vendor
+
+# NodeJS
+/node_modules
+
+# Assets
+/www/dist
+
+# Tests
+/tests/*.log
+/tests/tmp
+/tests/coverage.html

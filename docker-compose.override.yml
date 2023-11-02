@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  database:
+    ports:
+      - 5433:5432
+
+  nginx:
+    ports:
+        - 8081:80
+        - 8443:443
