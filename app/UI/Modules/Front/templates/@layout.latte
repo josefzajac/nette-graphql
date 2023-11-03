@@ -1,10 +1,10 @@
 {layout '../../Base/templates/@layout.latte'}
 
 {block #head}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 {/}
 
 {block #main}
@@ -20,6 +20,45 @@
 <div class="section no-pad-bot" id="index-banner">
 	<div class="container">
 		<h3>Stripped Table with borders</h3>
+
+		<a class="waves-effect waves-light btn modal-trigger" href="#modalAdd">Add Brand</a>
+		<div id="modalAdd" class="modal">
+			<div class="modal-content">
+				<h3>New brand form</h3>
+				<form id="newBrand">
+					<div class="row">
+						<div class="input-field col s12">
+							<input placeholder="Enter brand name" id="name" type="text" class="validate tooltipped" data-position="bottom" data-tooltip="Fill name">
+							<label for="name"></label>
+						</div>
+					</div>
+					<input type="submit" class="btn" value="Send">
+				</form>
+			</div>
+			<div class="modal-footer">
+				<a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+			</div>
+		</div>
+
+		<div id="modalEdit" class="modal">
+			<div class="modal-content">
+				<h3>Edit brand form</h3>
+				<form id="editBrand">
+					<div class="row">
+						<div class="input-field col s12">
+							<input placeholder="Enter brand name" id="name" type="text" class="validate tooltipped" data-position="bottom" data-tooltip="Fill name">
+							<label for="name"></label>
+						</div>
+					</div>
+					<input type="hidden" name="id" id="id">
+					<input type="submit" class="btn" value="Send">
+				</form>
+			</div>
+			<div class="modal-footer">
+				<a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+			</div>
+		</div>
+
 		<table class="striped bordered" id="brand_table">
 			<thead>
 				<tr><th>ID</th><th>Name</th><th>Action</th></tr>
@@ -50,32 +89,41 @@
 
 <script n:syntax="off">
 
+	const gqlEndpoint = "\/graphql";
 	const range = (start, stop, step) => Array.from({ length: (stop - start) / step + 1 }, (_, i) => start + i * step);
 
+	 M.AutoInit();
+
+	/** Load data */
 	function callGraph() {
 		$.post({
-		    url: "\/graphql",
-		    beforeSend: function(a, b){
-			    let page = $('.page.active').data('page');
-				let perPage = $('.items_per_page.active').data('items');
-			    b.data = JSON.stringify({query:'{brands(itemsPerPage:' + perPage + ', page:' + page + '){items{id, name}currentPage,totalCount,perPage}}'});
-		    }
-		})
-		.done(function( response ) {
-			$('#brand_table tbody tr').remove();
-			$(response.data.brands.items).each(function(k, row){
-				$('#brand_table tbody').append('<tr><td>' + row.id + '</td><td>' + row.name + '</td><td><i class="material-icons edit_btn" data-id="' + row.id + '">mode_edit</i><i class="material-icons delete_btn" data-id="' + row.id + '">delete</i></td></tr>')
-			})
+			url: gqlEndpoint,
+			beforeSend: function(a, b){
+				let page = $('.page.active').data('page'),
+					perPage = $('.items_per_page.active').data('items');
+				b.data = JSON.stringify({query:'{brands(itemsPerPage:' + perPage + ', page:' + page + '){items{id, name}currentPage,totalCount,perPage}}'});
+			}
+		}).done(function( response ) {
+			if (response.errors) {
+				response.errors.forEach(function(e) {
+					console.log(e.message)
+				})
+			} else {
+				$('#brand_table tbody tr').remove();
+				$(response.data.brands.items).each(function(k, row){
+					$('#brand_table tbody').append('<tr><td>' + row.id + '</td><td>' + row.name + '</td><td><i class="material-icons edit_btn" data-id="' + row.id + '" data-name="' + row.name + '">mode_edit</i><i class="material-icons delete_btn" data-id="' + row.id + '">delete</i></td></tr>')
+				})
 
-			$('#brand_table #pages li').remove();
-			range(1, Math.ceil(response.data.brands.totalCount / response.data.brands.perPage), 1).forEach(function(x){
-				$('#brand_table #pages').append('<li data-page="'+x+'" class="page"><a href="#">'+x+'</a></li>')
-			})
-			$('#brand_table #pages li').eq(response.data.brands.currentPage-1).addClass('active')
-
-	   });
+				$('#brand_table #pages li').remove();
+				range(1, Math.ceil(response.data.brands.totalCount / response.data.brands.perPage), 1).forEach(function(x){
+					$('#brand_table #pages').append('<li data-page="'+x+'" class="page"><a href="#">'+x+'</a></li>')
+				})
+				$('#brand_table #pages li').eq(response.data.brands.currentPage-1).addClass('active')
+			}
+		});
 	}
 
+	/** Items per page */
 	$('#brand_table').on('click', '.items_per_page', function(e) {
 		$('.items_per_page').removeClass('active')
 		$(this).addClass('active')
@@ -84,20 +132,70 @@
 		callGraph();
 	})
 
+	/** Select page */
 	$('#brand_table').on('click', '.page', function(e) {
 		$('.pagination .page').removeClass('active')
 		$(this).addClass('active')
 		callGraph();
 	})
 
-
+	/** Edit button */
 	$('#brand_table').on('click', '.edit_btn', function(e){
-		console.log($(this).data('id'))
-	})
-	$('#brand_table').on('click', '.delete_btn', function(e){
-		console.log($(this).data('id'))
+		$('form#editBrand input#id').val($(this).data('id'));
+		$('form#editBrand input#name').val($(this).data('name'));
+		M.Modal.getInstance($('#modalEdit')).open();
 	})
 
+	/** Delete button */
+	$('#brand_table').on('click', '.delete_btn', function(e){
+		let id = $(this).data('id');
+		$.post({
+			url: gqlEndpoint,
+			beforeSend: function(a, b){
+				b.data = JSON.stringify({query:'mutation{deleteBrand(id:' + id + ')}'});
+			}
+		}).done(function() {
+			callGraph();
+		})
+	})
+
+	/** Add brand form */
+	$('form#newBrand').submit(function(e) {
+		if ($('form#newBrand input#name').val() === '') {
+			M.Tooltip.getInstance($('form#newBrand input#name')).open()
+			return;
+		}
+		$.post({
+			url: gqlEndpoint,
+			beforeSend: function(a, b){
+				let name = $('form#newBrand input#name').val()
+				b.data = JSON.stringify({query:'mutation {createBrand(name:"' + name + '"){id,name}}'});
+			}
+		}).done(function() {
+			$('form#newBrand input#name').val('');
+			M.Modal.getInstance($('#modalAdd')).close();
+			callGraph();
+		})
+	})
+
+	/** Edit brand form */
+	$('form#editBrand').submit(function(e) {
+		if ($('form#editBrand input#name').val() === '') {
+			M.Tooltip.getInstance($('form#editBrand input#name')).open()
+			return;
+		}
+		$.post({
+			url: gqlEndpoint,
+			beforeSend: function(a, b){
+				let id = $('form#editBrand input#id').val(),
+				    name = $('form#editBrand input#name').val();
+				b.data = JSON.stringify({query:'mutation{updateBrand(name:"' + name + '", id:' + id + '){id,name}}'});
+			}
+		}).done(function() {
+			M.Modal.getInstance($('#modalEdit')).close();
+			callGraph();
+		})
+	})
 	callGraph();
 
 </script>

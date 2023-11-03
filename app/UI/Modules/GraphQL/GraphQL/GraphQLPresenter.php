@@ -127,16 +127,16 @@ class GraphQLPresenter extends BasePresenter
 			])
 		]);
 
-		$query = $this->inputBodyDecoded['query'];
-		$variableValues = $this->inputBodyDecoded['variables'] ?? null;
-
 		try{
-			$rootValue = ['prefix' => 'You said: ', 'brandRepository' => $this->brandRepository];
-			$result = GraphQL::executeQuery($schema, $query, $rootValue, null, $variableValues);
+			$result = GraphQL::executeQuery(
+				schema: $schema,
+				source: $this->inputBodyDecoded['query'],
+				variableValues: $this->inputBodyDecoded['variables'] ?? null);
+
 			$this->formatObjectPayload((object) $result->toArray());
 		}
 		catch ( Exception $e) {
-			$this->formatException(new Exception(sprintf("GQL error '%s' ", $e->getMessage())));
+			$this->formatException(new Exception(sprintf("GQL error '%s'", $e->getMessage())));
 		}
 	}
 
