@@ -19,7 +19,6 @@
 
 <div class="section no-pad-bot" id="index-banner">
 	<div class="container">
-
 		<h3>Stripped Table with borders</h3>
 		<table class="striped bordered" id="brand_table">
 			<thead>
@@ -29,14 +28,15 @@
 			<tfoot>
 				<tr>
 					<td>
+						<span>Items per page:</span><br/>
 						<ul class="pagination">
-							<span>Items per page:</span>
 							<li class="active items_per_page" data-items="5"><a href="#" >5</a></li>
 							<li class="items_per_page" data-items="10"><a href="#">10</a></li>
 							<li class="items_per_page" data-items="20"><a href="#">20</a></li>
 						</ul>
 					</td>
 					<td colspan="2">
+						<span>Page:</span><br/>
 						<ul class="pagination" id="pages">
 							<li data-page="1" class="active page"><a href="#">1</a></li>
 						</ul>
@@ -57,13 +57,14 @@
 		    url: "\/graphql",
 		    beforeSend: function(a, b){
 			    let page = $('.page.active').data('page');
-			    b.data = JSON.stringify({query:'{brands(itemsPerPage:'+$('.items_per_page.active').data('items')+', page:'+ page +'){items{id, name}currentPage,totalCount,perPage}}'});
+				let perPage = $('.items_per_page.active').data('items');
+			    b.data = JSON.stringify({query:'{brands(itemsPerPage:' + perPage + ', page:' + page + '){items{id, name}currentPage,totalCount,perPage}}'});
 		    }
 		})
 		.done(function( response ) {
 			$('#brand_table tbody tr').remove();
 			$(response.data.brands.items).each(function(k, row){
-				$('#brand_table tbody').append('<tr><td>' + row.id + '</td><td>'+row.name+'</td><td><i class="material-icons edit_btn" data-id="'+row.id+'">mode_edit</i><i class="material-icons delete_btn" data-id="'+row.id+'">delete</i></td></tr>')
+				$('#brand_table tbody').append('<tr><td>' + row.id + '</td><td>' + row.name + '</td><td><i class="material-icons edit_btn" data-id="' + row.id + '">mode_edit</i><i class="material-icons delete_btn" data-id="' + row.id + '">delete</i></td></tr>')
 			})
 
 			$('#brand_table #pages li').remove();

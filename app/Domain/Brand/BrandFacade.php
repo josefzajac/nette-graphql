@@ -3,23 +3,44 @@
 namespace App\Domain\Brand;
 
 use App\Model\Database\EntityManagerDecorator;
+use Mpdf\Tag\Br;
 
 class BrandFacade
 {
 	public function __construct(
+		private readonly BrandRepository $repo,
 		private readonly EntityManagerDecorator $em
 	) {}
 
-	/**
-	 * @param array<string> $data
-	 */
-	public function createBrand(array $data): Brand
+	public function createBrand(string $name ): Brand
 	{
-		$user = new Brand((string)$data['name']);
+		$brand = new Brand($name);
 
-		$this->em->persist($user);
+		$this->em->persist($brand);
 		$this->em->flush();
 
-		return $user;
+		return $brand;
+	}
+
+	public function updateBrand(int $id, string $name): Brand
+	{
+		$brand = $this->repo->find($id);
+		$brand->setName($name);
+
+		$this->em->persist($brand);
+		$this->em->flush();
+
+		return $brand;
+	}
+
+	public function deleteBrand(int $id): int
+	{
+		$brand = $this->repo->find($id);
+		$id = $brand->getId();
+
+		$this->em->remove($brand);
+		$this->em->flush();
+
+		return $id;
 	}
 }

@@ -3,6 +3,7 @@
 namespace App\UI\Modules\GraphQL\GraphQL;
 
 use App\Domain\Brand\Brand;
+use App\Domain\Brand\BrandFacade;
 use App\Domain\Brand\BrandRepository;
 use App\Model\Database\PaginatorInput;
 use App\UI\Modules\Base\BasePresenter;
@@ -27,6 +28,9 @@ class GraphQLPresenter extends BasePresenter
 
 	/** @var false */
 	protected mixed $inputBodyDecoded;
+
+	/** @inject */
+	public BrandFacade $brandFacade;
 
 	/** @inject */
 	public BrandRepository $brandRepository;
@@ -89,6 +93,36 @@ class GraphQLPresenter extends BasePresenter
 							'page' => Type::Int()
 						],
 					],
+				],
+			]),
+			'mutation' => new ObjectType([
+				'name' => 'Mutation',
+				'fields' => [
+					'createBrand' => [
+						'type' => $brandType,
+						'resolve' => function($rootValue, array $args): Brand {
+							return $this->brandFacade->createBrand((string) $args['name']);
+						},
+						'args' => [
+							'name' => ['type' => Type::string()],
+						]],
+					'updateBrand' => [
+						'type' => $brandType,
+						'resolve' => function($rootValue, array $args): Brand {
+							return $this->brandFacade->updateBrand((int) $args['id'], (string) $args['name']);
+						},
+						'args' => [
+							'id' => ['type' => Type::int()],
+							'name' => ['type' => Type::string()],
+						]],
+					'deleteBrand' => [
+						'type' => Type::int(),
+						'resolve' => function($rootValue, array $args): int {
+							return $this->brandFacade->deleteBrand((int) $args['id']);
+						},
+						'args' => [
+							'id' => ['type' => Type::int()],
+						]],
 				],
 			])
 		]);

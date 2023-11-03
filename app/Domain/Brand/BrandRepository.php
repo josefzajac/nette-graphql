@@ -2,14 +2,13 @@
 
 namespace App\Domain\Brand;
 
-use App\Domain\User\User;
 use App\Model\Database\PaginatorInput;
 use App\Model\Database\Repository\AbstractRepository;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
- * @extends AbstractRepository<User>
+ * @extends AbstractRepository<Brand>
  */
 class BrandRepository extends AbstractRepository
 {
