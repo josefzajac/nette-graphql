@@ -1,9 +1,6 @@
 # Services
 #
 services:
-	# Forms ===================
-	- App\UI\Form\FormFactory
-
 	# Latte ===================
 	latte.latteFactory:
 		setup:
@@ -30,10 +27,8 @@ services:
 		type: Nette\Application\IRouter
 		factory: @App\Model\Router\RouterFactory::create
 
-	# Domain =================
-	- App\Domain\User\CreateUserFacade
-
-	- App\Model\Database\QueryManager
+	- App\Domain\Brand\BrandRepository
+	- App\Domain\Brand\BrandFacade
 
 latte:
 	macros:

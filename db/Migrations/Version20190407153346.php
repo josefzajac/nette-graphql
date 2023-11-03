@@ -7,9 +7,6 @@ namespace Database\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-/**
- * Auto-generated Migration: Please modify to your needs!
- */
 final class Version20190407153346 extends AbstractMigration
 {
     public function getDescription() : string

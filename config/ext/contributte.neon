@@ -13,11 +13,6 @@ contributte.console:
 	url: http://localhost/
 	lazy: true
 
-contributte.mailing:
-	template:
-		config:
-			layout: %appDir%/resources/mail/@layout.latte
-
 contributte.monolog:
 	holder:
 		enabled: true
@@ -32,9 +27,3 @@ contributte.monolog:
 				- Monolog\Processor\IntrospectionProcessor()
 				- Monolog\Processor\MemoryPeakUsageProcessor()
 				- Monolog\Processor\ProcessIdProcessor()
-
-services:
-		-
-			factory: Contributte\PdfResponse\PdfResponse
-			setup:
-				- $mpdfConfig([tempDir: %tempDir%/mpdf])
