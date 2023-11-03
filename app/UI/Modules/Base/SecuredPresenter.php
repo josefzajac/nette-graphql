@@ -2,7 +2,6 @@
 
 namespace App\UI\Modules\Base;
 
-use App\Model\App;
 use Nette\Security\UserStorage;
 
 abstract class SecuredPresenter extends BasePresenter

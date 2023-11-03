@@ -21,6 +21,7 @@ final class RouterFactory
 
 		return $this->router;
 	}
+
 	protected function buildFront(): void
 	{
 		$this->router[] = $list = new RouteList('Front');
@@ -33,4 +34,5 @@ final class RouterFactory
 		$list->addRoute('graphql', 'GraphQL:default');
 		$list->addRoute('graphiql', 'GraphiQL:default');
 	}
+
 }

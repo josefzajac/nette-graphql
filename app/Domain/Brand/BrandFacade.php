@@ -1,18 +1,20 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace App\Domain\Brand;
 
 use App\Model\Database\EntityManagerDecorator;
-use Mpdf\Tag\Br;
 
 class BrandFacade
 {
+
 	public function __construct(
 		private readonly BrandRepository $repo,
 		private readonly EntityManagerDecorator $em
-	) {}
+	)
+	{
+	}
 
-	public function createBrand(string $name ): Brand
+	public function createBrand(string $name): Brand
 	{
 		$brand = new Brand($name);
 
@@ -43,4 +45,5 @@ class BrandFacade
 
 		return $id;
 	}
+
 }

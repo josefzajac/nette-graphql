@@ -15,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Brand extends AbstractEntity
 {
+
 	use TId;
 	use TCreatedAt;
 	use TUpdatedAt;
@@ -38,4 +39,5 @@ class Brand extends AbstractEntity
 	{
 		return $this->name;
 	}
+
 }

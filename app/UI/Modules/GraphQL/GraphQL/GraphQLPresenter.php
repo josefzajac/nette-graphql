@@ -23,11 +23,6 @@ use Symfony\Component\Serializer\Serializer;
 
 class GraphQLPresenter extends BasePresenter
 {
-	/** @var false|mixed|string */
-	protected mixed $inputBody;
-
-	/** @var false */
-	protected mixed $inputBodyDecoded;
 
 	/** @inject */
 	public BrandFacade $brandFacade;
@@ -35,13 +30,10 @@ class GraphQLPresenter extends BasePresenter
 	/** @inject */
 	public BrandRepository $brandRepository;
 
-	protected function startup(): void
-	{
-		parent::startup();
+	protected mixed $inputBody;
 
-		$this->inputBody = file_get_contents('php://input');
-		$this->inputBodyDecoded = json_decode($this->inputBody, true);
-	}
+	/** @var false */
+	protected mixed $inputBodyDecoded;
 
 	public function actionDefault(): void
 	{
@@ -53,12 +45,10 @@ class GraphQLPresenter extends BasePresenter
 				'id' => ['type' => Type::id()],
 				'name' => ['type' => Type::string()],
 			],
-			'resolveField' => function (Brand $brand, array $args, $context, ResolveInfo $info) {
-				return match ($info->fieldName) {
+			'resolveField' => fn (Brand $brand, array $args, $context, ResolveInfo $info) => match ($info->fieldName) {
 					'id' => $brand->getId(),
 					'name' => $brand->getName(),
 					default => null,
-				};
 			},
 		]);
 
@@ -78,19 +68,19 @@ class GraphQLPresenter extends BasePresenter
 				'fields' => [
 					'brands' => [
 						'type' => $brandConnectionType,
-						'resolve' => function($rootValue, array $args): array {
+						'resolve' => function ($rootValue, array $args): array {
 							$paginator = $this->brandRepository->getAll(new PaginatorInput($args['page'], $args['itemsPerPage']));
 
 							return [
 								'items' => $paginator,
 								'currentPage' => $args['page'],
 								'totalCount' => $paginator->count(),
-								'perPage' => $args['itemsPerPage']
+								'perPage' => $args['itemsPerPage'],
 								];
 						},
 						'args' => [
 							'itemsPerPage' => Type::Int(),
-							'page' => Type::Int()
+							'page' => Type::Int(),
 						],
 					],
 				],
@@ -100,63 +90,65 @@ class GraphQLPresenter extends BasePresenter
 				'fields' => [
 					'createBrand' => [
 						'type' => $brandType,
-						'resolve' => function($rootValue, array $args): Brand {
-							return $this->brandFacade->createBrand((string) $args['name']);
-						},
+						'resolve' => fn ($rootValue, array $args): Brand => $this->brandFacade->createBrand((string) $args['name']),
 						'args' => [
 							'name' => ['type' => Type::string()],
 						]],
 					'updateBrand' => [
 						'type' => $brandType,
-						'resolve' => function($rootValue, array $args): Brand {
-							return $this->brandFacade->updateBrand((int) $args['id'], (string) $args['name']);
-						},
+						'resolve' => fn ($rootValue, array $args): Brand => $this->brandFacade->updateBrand((int) $args['id'], (string) $args['name']),
 						'args' => [
 							'id' => ['type' => Type::int()],
 							'name' => ['type' => Type::string()],
 						]],
 					'deleteBrand' => [
 						'type' => Type::int(),
-						'resolve' => function($rootValue, array $args): int {
-							return $this->brandFacade->deleteBrand((int) $args['id']);
-						},
+						'resolve' => fn ($rootValue, array $args): int => $this->brandFacade->deleteBrand((int) $args['id']),
 						'args' => [
 							'id' => ['type' => Type::int()],
 						]],
 				],
-			])
+			]),
 		]);
 
-		try{
+		try {
 			$result = GraphQL::executeQuery(
 				schema: $schema,
 				source: $this->inputBodyDecoded['query'],
-				variableValues: $this->inputBodyDecoded['variables'] ?? null);
+				variableValues: $this->inputBodyDecoded['variables'] ?? null
+			);
 
 			$this->formatObjectPayload((object) $result->toArray());
-		}
-		catch ( Exception $e) {
+		} catch ( \Throwable $e) {
 			$this->formatException(new Exception(sprintf("GQL error '%s'", $e->getMessage())));
 		}
 	}
 
-	public function checkMethodType()
+	public function checkMethodType(): void
 	{
 		if (!$this->getHttpRequest()->isMethod(IRequest::Post)) {
-			$this->formatException(new Exception("Chybně odeslaná metoda POST."));
+			$this->formatException(new Exception('Chybně odeslaná metoda POST.'));
 		}
 
-		if ($this->inputBody !== '' && !is_object(json_decode((string)$this->inputBody))) {
-			$this->formatException(new Exception("Chybně zadaný json."));
+		if ($this->inputBody !== '' && !is_object(json_decode((string) $this->inputBody))) {
+			$this->formatException(new Exception('Chybně zadaný json.'));
 		}
 	}
 
 	public function beforeRender(): void
 	{
-		$this->formatException(new Exception("Zadaná URL adresa API neexistuje."));
+		$this->formatException(new Exception('Zadaná URL adresa API neexistuje.'));
 	}
 
-	protected function formatException(Exception $e): never
+	protected function startup(): void
+	{
+		parent::startup();
+
+		$this->inputBody = file_get_contents('php://input');
+		$this->inputBodyDecoded = json_decode($this->inputBody, true);
+	}
+
+	protected function formatException(\Throwable $e): never
 	{
 		$this->ApiResponse(['message' => $e->getMessage()], IResponse::S200_OK, 'error');
 	}
@@ -184,4 +176,5 @@ class GraphQLPresenter extends BasePresenter
 		$response->send($this->getHttpRequest(), $httpResponse);
 		exit;
 	}
+
 }

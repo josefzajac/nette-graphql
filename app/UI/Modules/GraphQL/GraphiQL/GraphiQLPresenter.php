@@ -6,7 +6,9 @@ use App\UI\Modules\Base\BasePresenter;
 
 class GraphiQLPresenter extends BasePresenter
 {
+
 	public function actionDefault(): void
 	{
 	}
+
 }
