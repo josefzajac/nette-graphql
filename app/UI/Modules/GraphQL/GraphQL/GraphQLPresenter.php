@@ -58,21 +58,31 @@ class GraphQLPresenter extends BasePresenter
 			},
 		]);
 
+		$brandConnectionType = new ObjectType([
+			'name' => 'BrandConnection',
+			'fields' => [
+				'items' => ['type' => ListOfType::listOf($brandType)],
+				'totalCount' => ['type' => Type::int()],
+				'currentPage' => ['type' => Type::int()],
+				'perPage' => ['type' => Type::int()],
+			],
+		]);
+
 		$schema = new Schema([
 			'query' => new ObjectType([
 				'name' => 'Query',
 				'fields' => [
 					'brands' => [
-						'type' => ListOfType::listOf($brandType),
+						'type' => $brandConnectionType,
 						'resolve' => function($rootValue, array $args): array {
-
 							$paginator = $this->brandRepository->getAll(new PaginatorInput($args['page'], $args['itemsPerPage']));
-							$results = [];
-							foreach($paginator as $item) {
-								$results[] = $item;
-							}
 
-							return $results;
+							return [
+								'items' => $paginator,
+								'currentPage' => $args['page'],
+								'totalCount' => $paginator->count(),
+								'perPage' => $args['itemsPerPage']
+								];
 						},
 						'args' => [
 							'itemsPerPage' => Type::Int(),

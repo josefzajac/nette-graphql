@@ -7,5 +7,15 @@
 
 Execute Query:
 ```json
-{brands(itemsPerPage:3, page:2){id, name}}
+{
+	brands(itemsPerPage: 3, page: 6) {
+		items {
+			id
+			name
+		}
+		currentPage
+		totalCount
+		perPage
+ 	}
+}
 ```

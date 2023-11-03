@@ -5,47 +5,90 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
 {/}
 
 {block #main}
-  <nav class="light-blue lighten-1" role="navigation">
-    <div class="nav-wrapper container">
-      <ul class="right hide-on-med-and-down">
-        <li><a n:href=":Front:Home:">Home</a></li>
-        <li><a n:href=":GraphQL:GraphiQL:">GraphiQL GUI</a></li>
-      </ul>
-    </div>
-  </nav>
+<nav class="light-blue lighten-1" role="navigation">
+	<div class="nav-wrapper container">
+		<ul class="right hide-on-med-and-down">
+			<li><a n:href=":Front:Home:">Home</a></li>
+			<li><a n:href=":GraphQL:GraphiQL:">GraphiQL GUI</a></li>
+		</ul>
+	</div>
+</nav>
 
-  <div class="section no-pad-bot" id="index-banner">
-    <div class="container">
+<div class="section no-pad-bot" id="index-banner">
+	<div class="container">
 
-	<h3>Stripped Table with borders</h3>
-		  <table class="striped bordered" id="brand_table">
-		  <thead>
-			 <tr><th>ID</th><th>Name</th><th>Action</th></tr>
-		  </thead>
-		  <tbody>
-		  </tbody>
-		  </table>
-    </div>
-  </div>
-
+		<h3>Stripped Table with borders</h3>
+		<table class="striped bordered" id="brand_table">
+			<thead>
+				<tr><th>ID</th><th>Name</th><th>Action</th></tr>
+			</thead>
+			<tbody></tbody>
+			<tfoot>
+				<tr>
+					<td>
+						<ul class="pagination">
+							<span>Items per page:</span>
+							<li class="active items_per_page" data-items="5"><a href="#" >5</a></li>
+							<li class="items_per_page" data-items="10"><a href="#">10</a></li>
+							<li class="items_per_page" data-items="20"><a href="#">20</a></li>
+						</ul>
+					</td>
+					<td colspan="2">
+						<ul class="pagination" id="pages">
+							<li data-page="1" class="active page"><a href="#">1</a></li>
+						</ul>
+					</td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
+</div>
 
 
 <script n:syntax="off">
-	$.ajax({
-	  method: "POST",
-	  url: "\/graphql",
-	  data: JSON.stringify({query:'{brands(itemsPerPage:3, page:5){id, name}}'})
+
+	const range = (start, stop, step) => Array.from({ length: (stop - start) / step + 1 }, (_, i) => start + i * step);
+
+	function callGraph() {
+		$.post({
+		    url: "\/graphql",
+		    beforeSend: function(a, b){
+			    let page = $('.page.active').data('page');
+			    b.data = JSON.stringify({query:'{brands(itemsPerPage:'+$('.items_per_page.active').data('items')+', page:'+ page +'){items{id, name}currentPage,totalCount,perPage}}'});
+		    }
+		})
+		.done(function( response ) {
+			$('#brand_table tbody tr').remove();
+			$(response.data.brands.items).each(function(k, row){
+				$('#brand_table tbody').append('<tr><td>' + row.id + '</td><td>'+row.name+'</td><td><i class="material-icons edit_btn" data-id="'+row.id+'">mode_edit</i><i class="material-icons delete_btn" data-id="'+row.id+'">delete</i></td></tr>')
+			})
+
+			$('#brand_table #pages li').remove();
+			range(1, Math.ceil(response.data.brands.totalCount / response.data.brands.perPage), 1).forEach(function(x){
+				$('#brand_table #pages').append('<li data-page="'+x+'" class="page"><a href="#">'+x+'</a></li>')
+			})
+			$('#brand_table #pages li').eq(response.data.brands.currentPage-1).addClass('active')
+
+	   });
+	}
+
+	$('#brand_table').on('click', '.items_per_page', function(e) {
+		$('.items_per_page').removeClass('active')
+		$(this).addClass('active')
+		$('.pagination .page').removeClass('active');
+		$('#brand_table #pages li').eq(0).addClass('active')
+		callGraph();
 	})
-    .done(function( response ) {
-		$('#brand_table tbody').remove('tr');
-    	$(response.data.brands).each(function(k, row){
-    		$('#brand_table tbody').append('<tr><td>' + row.id + '</td><td>'+row.name+'</td><td><i class="material-icons edit_btn" data-id="'+row.id+'">mode_edit</i><i class="material-icons delete_btn" data-id="'+row.id+'">delete</i></td></tr>')
-    	})
-   });
+
+	$('#brand_table').on('click', '.page', function(e) {
+		$('.pagination .page').removeClass('active')
+		$(this).addClass('active')
+		callGraph();
+	})
+
 
 	$('#brand_table').on('click', '.edit_btn', function(e){
 		console.log($(this).data('id'))
@@ -54,6 +97,7 @@
 		console.log($(this).data('id'))
 	})
 
+	callGraph();
 
 </script>
 {/}
