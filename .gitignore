@@ -1,6 +1,3 @@
-# Nette
-/config/local.neon
-
 .idea
 .docker/data
 .docs

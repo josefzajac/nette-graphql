@@ -1,0 +1,10 @@
+# Host Config
+parameters:
+
+	# Database
+	database:
+		host: database
+		dbname: contributte
+		user: contributte
+		password: contributte
+
