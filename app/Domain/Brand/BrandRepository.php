@@ -23,8 +23,9 @@ class BrandRepository extends AbstractRepository
 
 	public function getAll(PaginatorInput $pagination): Paginator
 	{
+		$order = explode(self::ORDER_BY_SEPARATOR, $pagination->order);
 		$query = $this->createQueryBuilder('b')
-			->orderBy('b.id', 'DESC')
+			->orderBy('b.' . $order[0], $order[1])
 			->setFirstResult(($pagination->page - 1) * $pagination->itemsPerPage)
 			->setMaxResults($pagination->itemsPerPage);
 

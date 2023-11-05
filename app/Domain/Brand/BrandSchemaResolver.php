@@ -41,7 +41,9 @@ class BrandSchemaResolver
 		return [
 			'type' => $brandConnectionType,
 			'resolve' => function ($rootValue, array $args): array {
-				$paginator = $rootValue['brandRepository']->getAll(new PaginatorInput($args['page'], $args['itemsPerPage']));
+				/** @var BrandRepository $brandRepository */
+				$brandRepository = $rootValue['brandRepository'];
+				$paginator = $brandRepository->getAll(new PaginatorInput($args['page'], $args['itemsPerPage'], $args['order'] ?? PaginatorInput::DEFAULT_ORDER));
 
 				return [
 					'items' => $paginator,

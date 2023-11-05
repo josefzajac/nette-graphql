@@ -11,4 +11,6 @@ use Doctrine\ORM\EntityRepository;
 abstract class AbstractRepository extends EntityRepository
 {
 
+	public const ORDER_BY_SEPARATOR = '-';
+
 }

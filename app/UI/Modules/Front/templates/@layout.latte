@@ -5,6 +5,7 @@
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+	<link href="{$baseUrl}/assets/css/main.css" rel="stylesheet">
 {/}
 
 {block #main}
@@ -59,9 +60,9 @@
 			</div>
 		</div>
 
-		<table class="striped bordered" id="brand_table">
+		<table class="striped bordered " id="brand_table">
 			<thead>
-				<tr><th>ID</th><th>Name</th><th>Action</th></tr>
+				<tr><th class="sorting sorting_asc sorting_active" data-sort="id" data-asc="asc">ID</th><th class="sorting" data-sort="name" data-asc="asc">Name</th><th>Action</th></tr>
 			</thead>
 			<tbody></tbody>
 			<tfoot>
@@ -100,8 +101,10 @@
 			url: gqlEndpoint,
 			beforeSend: function(a, b){
 				let page = $('.page.active').data('page'),
+				    sort = $('.sorting_active').data('sort') + '-' + $('.sorting_active').data('asc'),
 					perPage = $('.items_per_page.active').data('items');
-				b.data = JSON.stringify({query:'{brands(itemsPerPage:' + perPage + ', page:' + page + '){items{id, name}currentPage,totalCount,perPage}}'});
+
+				b.data = JSON.stringify({query:'{brands(itemsPerPage:' + perPage + ', page:' + page + ', order:"' + sort + '"){items{id, name}currentPage,totalCount,perPage}}'});
 			}
 		}).done(function( response ) {
 			if (response.errors) {
@@ -122,6 +125,26 @@
 			}
 		});
 	}
+
+	/** Sorting */
+	$('.sorting').click(function(e) {
+		$('.sorting_active').removeClass('sorting_active');
+		if ($(this).hasClass('sorting_asc') || $(this).hasClass('sorting_desc')) {
+			if ($(this).hasClass('sorting_asc')) {
+				$(this).data('asc', 'desc');
+				$(this).removeClass('sorting_asc').addClass('sorting_desc').addClass('sorting_active');
+			} else {
+				$(this).data('asc', 'asc');
+				$(this).removeClass('sorting_desc').addClass('sorting_asc').addClass('sorting_active');
+			}
+		} else {
+			$('.sorting_asc').removeClass('sorting_asc');
+			$(this).data('asc', 'asc');
+			$(this).addClass('sorting_asc').addClass('sorting_active');
+		}
+
+		callGraph();
+	})
 
 	/** Items per page */
 	$('#brand_table').on('click', '.items_per_page', function(e) {
