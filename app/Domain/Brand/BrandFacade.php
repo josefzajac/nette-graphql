@@ -27,6 +27,11 @@ class BrandFacade
 	public function updateBrand(int $id, string $name): Brand
 	{
 		$brand = $this->repo->find($id);
+		if (!(bool) $brand) {
+			throw new \Exception('Brand not found');
+		}
+
+		/** @var Brand $brand */
 		$brand->setName($name);
 
 		$this->em->persist($brand);
@@ -38,6 +43,11 @@ class BrandFacade
 	public function deleteBrand(int $id): int
 	{
 		$brand = $this->repo->find($id);
+		if (!(bool) $brand) {
+			throw new \Exception('Brand not found');
+		}
+
+		/** @var Brand $brand */
 		$id = $brand->getId();
 
 		$this->em->remove($brand);

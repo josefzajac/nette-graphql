@@ -27,8 +27,9 @@ services:
 		type: Nette\Application\IRouter
 		factory: @App\Model\Router\RouterFactory::create
 
-	- App\Domain\Brand\BrandRepository
 	- App\Domain\Brand\BrandFacade
+	- App\Domain\Brand\BrandRepository
+	- App\Domain\Brand\BrandSchemaResolver
 
 latte:
 	macros:
