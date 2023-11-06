@@ -12,7 +12,7 @@
 3) Sass compile
 	- Install nvm https://github.com/nvm-sh/nvm#manual-install
 	- Run `nvm install && npm install`
-	- Build local assets npm `node_modules/sass/sass.js www/assets/css/main.scss www/dist/css/compiled.css`
+	- Build local assets npm `node_modules/sass/sass.js www/assets/css/main.scss www/dist/css/main.css`
 	- I know, should be in php container or as separate node container
 
 4) Open http://localhost:8081
