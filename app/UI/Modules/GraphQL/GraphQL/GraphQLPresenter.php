@@ -11,6 +11,7 @@ use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Schema;
 use Nette\Application\Responses\JsonResponse;
+use Nette\DI\Attributes\Inject;
 use Nette\Http\IRequest;
 use Nette\Http\IResponse;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -20,13 +21,13 @@ use Symfony\Component\Serializer\Serializer;
 class GraphQLPresenter extends BasePresenter
 {
 
-	/** @inject */
+	#[Inject]
 	public BrandFacade $brandFacade;
 
-	/** @inject */
+	#[Inject]
 	public BrandRepository $brandRepository;
 
-	/** @inject */
+	#[Inject]
 	public BrandSchemaResolver $brandSchemaResolver;
 
 	protected string $inputBody;
