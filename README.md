@@ -1,15 +1,25 @@
 # GQL Brands - Sportissimo
 
+### Prerequisities
+- Local docker and node js
+
 1) Run `docker-compose up`
 
 2) Load data-fixtures `docker-compose exec php php bin/console doctrine:fixtures:load --no-interaction`
 
-3) Open http://localhost:8081
+3) Sass compile
+	- Install nvm https://github.com/nvm-sh/nvm#manual-install
+    - Run `nvm install && npm install`
+    - Build local assets npm `node_modules/sass/sass.js www/assets/css/main.scss www/dist/css/compiled.css`
+	- I know, should be in php container or as separate node container
 
-4) Open http://localhost:8081/graphiql and check gql api
+4) Open http://localhost:8081
+
+5) Open http://localhost:8081/graphiql and check gql api
+
 
 Execute Queries:
-```json
+```
 {brands(itemsPerPage: 3, page: 1) {
 	items {
 		id,name}
