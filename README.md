@@ -1,4 +1,4 @@
-# GQL Brands - Sportissimo
+# Nette + webonyx/GraphQL API + jQuery
 
 ### Prerequisities
 - Local docker and node js
